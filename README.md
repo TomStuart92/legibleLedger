@@ -19,5 +19,5 @@ This is a basic implementation of a blockchain for internal use in the Jigsaw.xy
 
 ### Tests
 - Finalize Unit Tests
-- Add Integration Tests
+- Finalizegit Integration Tests
 - Lint Code

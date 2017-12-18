@@ -19,7 +19,7 @@ import static spark.Spark.post;
 public class Server {
   private Controller controller;
 
-  Server(int difficulty) {
+  public Server(int difficulty) {
     this.controller = new Controller(difficulty);
     controller.mineBlockchain();
 
@@ -29,7 +29,7 @@ public class Server {
     awaitInitialization();
   }
 
-  void stop() {
+  public void stop() {
     Spark.stop();
   }
 

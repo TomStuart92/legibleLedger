@@ -1,7 +1,8 @@
-package xyzCoin;
+package xyzCoinFeatures;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
@@ -11,11 +12,12 @@ import org.apache.http.util.EntityUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import xyzCoin.Server;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import static junit.framework.TestCase.assertEquals;
 
@@ -25,34 +27,23 @@ import static junit.framework.TestCase.assertEquals;
  * Tests server implementation
  */
 
-public class FeatureTest {
+public class GetWalletFeatureTest {
   private Server server;
+  private String name;
 
   @Before
-  public void initialization(){
+  public void initialization() throws Exception {
     server = new Server(4);
-    System.out.print("Started Server");
+    name = UUID.randomUUID().toString();
+    makeWallet(name, "password");
   }
-
-  @After
-  public void tearDown(){
-    server.stop();
-    System.out.print("Closed Server");
-  }
-
+  
   @Test
-  public void postWalletsShouldCreateANewWallet() throws Exception {
-    System.out.print("Ran Test");
-    ResponseObject response = makeWallet("test01", "password");
-    assertEquals(201, response.getStatus());
-  }
-
-  @Test
-  public void postDuplicateWalletsShouldThrowException() throws Exception {
-    ResponseObject response1 = makeWallet("test01", "password");
-    assertEquals(201, response1.getStatus());
-    ResponseObject response2 = makeWallet("test01", "password");
-    assertEquals(409, response2.getStatus());
+  public void getWalletShouldReturnBalance() throws Exception {
+    ResponseObject response = getWallet(name);
+    assertEquals(200, response.getStatus());
+    JSONObject responseBody = response.getBody();
+    assertEquals(true, responseBody.containsKey("value"));
   }
 
   private ResponseObject makeWallet(String name, String password) throws IOException {
@@ -62,6 +53,9 @@ public class FeatureTest {
     return makePostRequest("http://localhost:4567/wallets", data.toJSONString());
   }
 
+  private ResponseObject getWallet(String name) throws IOException {
+    return makeGetRequest("http://localhost:4567/wallets/" + name);
+  }
 
   private ResponseObject makePostRequest(String url, String data) throws IOException {
     CloseableHttpClient httpclient = HttpClients.createDefault();
@@ -69,6 +63,20 @@ public class FeatureTest {
     HttpPost postMethod = new HttpPost(url);
     postMethod.setEntity(requestEntity);
     HttpResponse response = httpclient.execute(postMethod);
+    int status = response.getStatusLine().getStatusCode();
+    HttpEntity entity = response.getEntity();
+    String body = entity != null ? EntityUtils.toString(entity) : null;
+    try {
+      return new ResponseObject(status, body);
+    } catch (ParseException e) {
+      return null;
+    }
+  }
+
+  private ResponseObject makeGetRequest(String url) throws IOException {
+    CloseableHttpClient httpclient = HttpClients.createDefault();
+    HttpGet getMethod = new HttpGet(url);
+    HttpResponse response = httpclient.execute(getMethod);
     int status = response.getStatusLine().getStatusCode();
     HttpEntity entity = response.getEntity();
     String body = entity != null ? EntityUtils.toString(entity) : null;
