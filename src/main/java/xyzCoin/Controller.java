@@ -1,6 +1,6 @@
 package xyzCoin;
 
-import java.util.ArrayList;
+import java.io.*;
 
 /**
  * Created by Tom on 12/10/2017.
@@ -8,7 +8,7 @@ import java.util.ArrayList;
  * Provides Controller Interface for Server
  */
 
-public class Controller {
+class Controller {
   private WalletController walletController;
   private Blockchain blockchain;
 
@@ -17,23 +17,15 @@ public class Controller {
     blockchain = new Blockchain(difficulty);
   }
 
-  public void mineBlockchain() {
+  void mineBlockchain() {
     blockchain.mine();
   }
 
-  public ArrayList<Block> getBlocks() {
-    return blockchain.getBlocks();
-  }
-
-  public Blockchain getBlockchain() {
-    return this.blockchain;
-  }
-
-  public void createNewWallet(String name, String password) throws AlreadyExistsServerException, InternalServerException {
+  void createNewWallet(String name, String password) throws AlreadyExistsServerException, InternalServerException {
     walletController.createNewWallet(name, password);
   }
 
-  public void sendCoin(String password, String fromName, Double amount, String toName) throws InternalServerException, ForbiddenServerException, InsufficientFundsException {
+  void sendCoin(String password, String fromName, Double amount, String toName) throws InternalServerException, ForbiddenServerException, InsufficientFundsException {
     Wallet fromWallet = walletController.getWallet(fromName);
     Wallet toWallet = walletController.getWallet(toName);
 
@@ -45,8 +37,45 @@ public class Controller {
     }
   }
 
-  public double getWalletBalance(String name) {
+  double getWalletBalance(String name) {
     Wallet wallet = walletController.getWallet(name);
     return wallet.getWalletBalance(this.blockchain);
+  }
+
+  void saveState() throws InternalServerException {
+    try {
+      FileOutputStream blockchainFile = new FileOutputStream(new File("blockchainState.txt"));
+      ObjectOutputStream blockchainOutputStream = new ObjectOutputStream(blockchainFile);
+      blockchainOutputStream.writeObject(this.blockchain);
+      blockchainOutputStream.close();
+      blockchainFile.close();
+
+      FileOutputStream walletFile = new FileOutputStream(new File("walletControllerState.txt"));
+      ObjectOutputStream walletOutputStream = new ObjectOutputStream(walletFile);
+      walletOutputStream.writeObject(this.walletController);
+      walletOutputStream.close();
+      walletFile.close();
+
+    } catch (IOException e) {
+      throw new InternalServerException("unable to save state");
+    }
+  }
+
+  void loadState(String blockChainStatePath, String walletControllerStatePath) throws InternalServerException {
+    try {
+      FileInputStream blockchainFile = new FileInputStream(new File(blockChainStatePath));
+      ObjectInputStream blockchainInputStream = new ObjectInputStream(blockchainFile);
+      this.blockchain = (Blockchain) blockchainInputStream.readObject();
+      blockchainInputStream.close();
+      blockchainFile.close();
+
+      FileInputStream walletFile = new FileInputStream(new File(walletControllerStatePath));
+      ObjectInputStream walletInputStream = new ObjectInputStream(walletFile);
+      this.walletController = (WalletController) walletInputStream.readObject();
+      walletInputStream.close();
+      walletFile.close();
+    } catch (IOException | ClassNotFoundException e) {
+      throw new InternalServerException("unable to load state");
+    }
   }
 }

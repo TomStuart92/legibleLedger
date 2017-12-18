@@ -1,5 +1,6 @@
 package xyzCoin;
 
+import java.io.Serializable;
 import java.security.*;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -11,7 +12,7 @@ import java.util.concurrent.*;
  * Aggregates Blocks Into A Chain
  */
 
-class Blockchain {
+class Blockchain implements Serializable {
   private int difficulty;
   private ArrayList<Block> blockchain;
   private ArrayList<Transaction> stagedTransactions;
@@ -39,6 +40,11 @@ class Blockchain {
     if (!verifyValidTransaction(transaction)) throw new InvalidRequestException("Invalid Request");
     stagedTransactions.add(transaction);
     System.out.println("Transaction Staged");
+  }
+
+  @Override
+  public String toString() {
+    return "difficulty:" + difficulty + "\nblockchain: " + blockchain + "\nstagedTransactions: " + stagedTransactions + "\nlastBlockHash: " + lastBlockHash;
   }
 
   private Future<Block> createCallable(ExecutorService executor) {

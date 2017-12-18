@@ -1,5 +1,6 @@
 package xyzCoin;
 
+import java.io.Serializable;
 import java.security.*;
 import java.util.Base64;
 
@@ -9,7 +10,7 @@ import java.util.Base64;
  * Encapsulates movement of coins from one wallet to another
  */
 
-class Transaction {
+class Transaction implements Serializable {
   private PublicKey from;
   private Double amount;
   private PublicKey to;
@@ -47,6 +48,11 @@ class Transaction {
 
   String getTransactionSignature() {
     return transactionSignature;
+  }
+
+  @Override
+  public String toString() {
+    return "from:" + from + "\namount: " + amount + "\nto: " + to + "\ntransactionString: " + transactionString + "\ntransactionSignature: " + transactionSignature;
   }
 
   private String createTransactionString(PublicKey from, Double amount, PublicKey to) {

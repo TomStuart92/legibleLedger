@@ -25,5 +25,4 @@ public class WalletControllerTest {
     Wallet wallet = tester.createNewWallet(name, "Password");
     assertEquals(tester.getWallet(name), wallet);
   }
-
 }

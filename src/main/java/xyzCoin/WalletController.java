@@ -1,5 +1,6 @@
 package xyzCoin;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 /**
@@ -8,7 +9,7 @@ import java.util.HashMap;
  * Manages User Wallets
  */
 
-class WalletController {
+class WalletController implements Serializable {
   private HashMap<String, Wallet> wallets;
 
   WalletController() {
@@ -24,5 +25,10 @@ class WalletController {
 
   Wallet getWallet(String name) {
     return wallets.get(name);
+  }
+
+  @Override
+  public String toString() {
+    return "wallets:" + wallets;
   }
 }

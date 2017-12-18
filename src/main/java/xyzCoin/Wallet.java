@@ -2,6 +2,7 @@ package xyzCoin;
 
 import org.mindrot.jbcrypt.BCrypt;
 
+import java.io.Serializable;
 import java.security.*;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -12,7 +13,7 @@ import java.util.Iterator;
  * Tracks transaction instances
  */
 
-public class Wallet {
+public class Wallet implements Serializable {
   private String hashedPassword;
   public PublicKey publicKey;
   private PrivateKey privateKey;
@@ -66,6 +67,11 @@ public class Wallet {
       }
     }
     return currentBalance;
+  }
+
+  @Override
+  public String toString() {
+    return "hashedPassword:" + hashedPassword + "\npublicKey: " + publicKey + "\nprivateKey: " + privateKey;
   }
 
   private Boolean checkPassword(String candidate) {

@@ -1,6 +1,8 @@
 package xyzCoin;
 
 import org.apache.commons.lang3.StringUtils;
+
+import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -14,7 +16,7 @@ import java.util.concurrent.Callable;
  * Embodies a transaction list in a hash block
  */
 
-public class Block implements Callable<Block> {
+public class Block implements Callable<Block>, Serializable {
   private ArrayList<Transaction> data;
   private String previousBlockHash;
   private String thisBlockHash;
@@ -38,6 +40,11 @@ public class Block implements Callable<Block> {
 
   ArrayList<Transaction> getData() {
     return this.data;
+  }
+
+  @Override
+  public String toString() {
+    return "Difficulty:" + difficulty + "\npreviousBlockHash: " + previousBlockHash + "\nthisBlockHash: " + thisBlockHash + "\ndata: " + data;
   }
 
   private void mineBlock() {
