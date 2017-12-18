@@ -1,6 +1,8 @@
 package xyzCoin;
 
 import java.io.*;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by Tom on 12/10/2017.
@@ -15,6 +17,7 @@ class Controller {
   Controller(int difficulty) {
     walletController = new WalletController();
     blockchain = new Blockchain(difficulty);
+    startSaveStateTask();
   }
 
   void mineBlockchain() {
@@ -77,5 +80,20 @@ class Controller {
     } catch (IOException | ClassNotFoundException e) {
       throw new InternalServerException("unable to load state");
     }
+  }
+
+  private void startSaveStateTask() {
+    Timer timer = new Timer();
+    TimerTask task = new TimerTask() {
+      @Override
+      public void run() {
+        try {
+          saveState();
+        } catch (InternalServerException e) {
+          System.out.print("UNABLE TO SAVE STATE");
+        }
+      }
+    };
+    timer.schedule(task,0,600000);
   }
 }
