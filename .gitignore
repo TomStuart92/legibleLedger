@@ -1,6 +1,8 @@
 .idea
 target
 .DS_STORE
+*.iml
 
 blockchainState.txt
 walletControllerState.txt
+dependency-reduced-pom.xml

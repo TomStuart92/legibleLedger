@@ -30,7 +30,6 @@ public class Block implements Callable<Block>, Serializable {
 
   public Block call() {
     this.mineBlock();
-    System.out.println("Mined Block");
     return this;
   }
 

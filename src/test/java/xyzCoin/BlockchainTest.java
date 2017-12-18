@@ -2,11 +2,16 @@ package xyzCoin;
 
 import org.junit.Test;
 
+import java.util.concurrent.TimeUnit;
+
 import static junit.framework.TestCase.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
 
 /**
  * Created by Tom on 14/12/2017.
  */
+
 public class BlockchainTest {
   @Test
   public void getBlocksShouldReturnEmptyOnNewBlockchain() throws Exception {
@@ -23,7 +28,9 @@ public class BlockchainTest {
     Blockchain tester = new Blockchain(0);
     tester.stageTransaction(transaction);
     tester.mine();
-    assertEquals(1, tester.getBlocks().size());
+    TimeUnit.SECONDS.sleep(1);
+    assertThat(tester.getBlocks().size(), greaterThan(1));
+    tester.stopMining();
   }
 
   @Test
@@ -35,5 +42,4 @@ public class BlockchainTest {
     Blockchain tester = new Blockchain(0);
     tester.stageTransaction(transaction);
   }
-
 }

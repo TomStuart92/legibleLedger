@@ -17,7 +17,7 @@ class Controller {
   Controller(int difficulty) {
     walletController = new WalletController();
     blockchain = new Blockchain(difficulty);
-    startSaveStateTask();
+//    startSaveStateTask();
   }
 
   void mineBlockchain() {
@@ -45,6 +45,11 @@ class Controller {
     return wallet.getWalletBalance(this.blockchain);
   }
 
+  void shutdown() throws InternalServerException {
+    blockchain.stopMining();
+//    saveState();
+  }
+
   void saveState() throws InternalServerException {
     try {
       FileOutputStream blockchainFile = new FileOutputStream(new File("blockchainState.txt"));
@@ -60,6 +65,7 @@ class Controller {
       walletFile.close();
 
     } catch (IOException e) {
+      System.out.print(e);
       throw new InternalServerException("unable to save state");
     }
   }
@@ -90,10 +96,11 @@ class Controller {
         try {
           saveState();
         } catch (InternalServerException e) {
-          System.out.print("UNABLE TO SAVE STATE");
+          System.out.print("unable to save state");
         }
       }
     };
+    // schedule to repeat every 10 minutes
     timer.schedule(task,0,600000);
   }
 }

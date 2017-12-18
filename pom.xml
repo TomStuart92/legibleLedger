@@ -5,15 +5,19 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>xyz.jigsaw</groupId>
-    <artifactId>legibleLedger</artifactId>
+    <artifactId>xyzCoin</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
     <properties>
+        <jdk.version>1.8</jdk.version>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
     <dependencies>
-        <!--TEST-->
+    <!--TEST-->
         <!--Install JUnit 4.12 for tests-->
         <dependency>
             <groupId>junit</groupId>
@@ -35,13 +39,6 @@
             <version>2.7.13</version>
             <scope>test</scope>
         </dependency>
-        <!--Install slf4j-simple 1.7.35 for logging-->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>1.7.25</version>
-            <scope>test</scope>
-        </dependency>
         <!--Install commons-httpclient 3.1 for feature testing-->
         <dependency>
             <groupId>commons-httpclient</groupId>
@@ -56,7 +53,7 @@
             <version>4.5.2</version>
             <scope>test</scope>
         </dependency>
-        <!--DEV-->
+    <!--DEV-->
         <!--Install Apache Commons 3.7 for string manipulation-->
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -81,11 +78,106 @@
             <artifactId>spark-core</artifactId>
             <version>2.7.1</version>
         </dependency>
-        <!--Install AWS SDK 1.11.106 for S3 backup-->
+        <!--Add Dockerfile Maven 1.0.0 for seamless deploy-->
         <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk</artifactId>
-            <version>1.11.106</version>
+            <groupId>com.spotify</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <version>0.4.14</version>
+        </dependency>
+        <!--Install slf4j-simple 1.7.35 for logging-->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.25</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <finalName>xyzCoin</finalName>
+        <plugins>
+            <!-- Set a compiler level -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <source>${jdk.version}</source>
+                    <target>${jdk.version}</target>
+                </configuration>
+            </plugin>
+            <!-- Set up JAR manifest -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <mainClass>xyzCoin.Server</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <!-- Copy Maven dependencies into target/lib/ -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <filters>
+                                <filter>
+                                    <artifact>junit:junit</artifact>
+                                    <includes>
+                                        <include>junit/framework/**</include>
+                                        <include>org/junit/**</include>
+                                    </includes>
+                                    <excludes>
+                                        <exclude>org/junit/experimental/**</exclude>
+                                        <exclude>org/junit/runners/**</exclude>
+                                    </excludes>
+                                </filter>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Build Docker image -->
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>dockerfile-maven-plugin</artifactId>
+                <version>1.3.6</version>
+                <executions>
+                    <execution>
+                        <id>default</id>
+                        <goals>
+                            <goal>build</goal>
+                            <goal>push</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <tag>${project.version}</tag>
+                    <buildArgs>
+                        <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
+                    </buildArgs>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

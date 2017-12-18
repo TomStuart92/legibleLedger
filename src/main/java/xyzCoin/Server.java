@@ -25,12 +25,13 @@ public class Server {
 
     post("/wallets", this::createNewWallet);
     get("/wallets/:name", this::getWalletBalance);
-    post("transactions", this::createNewTransaction);
+    post("/transactions", this::createNewTransaction);
     awaitInitialization();
   }
 
-  public void stop() {
+  public void stop() throws InternalServerException {
     Spark.stop();
+    controller.shutdown();
   }
 
   private String createNewWallet(Request req, Response res) {
@@ -86,9 +87,13 @@ public class Server {
     }
   }
 
-
   public static void main(String[] args) {
-    int difficulty = Integer.parseInt(args[0]);
+    int difficulty;
+    if(args.length > 1) {
+      difficulty = Integer.parseInt(args[0]);
+    } else {
+      difficulty = 4;
+    }
     new Server(difficulty);
   }
 }

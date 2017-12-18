@@ -17,12 +17,14 @@ class Blockchain implements Serializable {
   private ArrayList<Block> blockchain;
   private ArrayList<Transaction> stagedTransactions;
   private String lastBlockHash;
+  private ExecutorService executor;
 
   Blockchain(int blockDifficulty) {
     this.difficulty = blockDifficulty;
     this.blockchain = new ArrayList<>();
     this.stagedTransactions = new ArrayList<>();
     this.lastBlockHash = "0000000000";
+    this.executor = Executors.newFixedThreadPool(10);
   }
 
   ArrayList<Block> getBlocks(){
@@ -30,16 +32,18 @@ class Blockchain implements Serializable {
   }
 
   void mine() {
-    ExecutorService executor = Executors.newFixedThreadPool(10);
-    CompletableFuture.supplyAsync(() -> this.createCallable(executor))
+    CompletableFuture.supplyAsync(() -> this.createCallable(this.executor))
         .thenAccept(this::addNewBlock)
         .thenRun(this::mine);
+  }
+
+  void stopMining() {
+    this.executor.shutdownNow();
   }
 
   void stageTransaction(Transaction transaction) throws InvalidRequestException {
     if (!verifyValidTransaction(transaction)) throw new InvalidRequestException("Invalid Request");
     stagedTransactions.add(transaction);
-    System.out.println("Transaction Staged");
   }
 
   @Override
