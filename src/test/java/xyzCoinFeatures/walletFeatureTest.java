@@ -29,7 +29,7 @@ import static junit.framework.TestCase.assertEquals;
  */
 
 public class walletFeatureTest {
-  private static Server server = new Server(4);
+  private static Server server = new Server(4, null, null);
 
   @AfterClass
   public static void tearDown() throws InternalServerException {

@@ -14,10 +14,17 @@ class Controller {
   private WalletController walletController;
   private Blockchain blockchain;
 
-  Controller(int difficulty) {
+  Controller(int difficulty, String blockchainStatePath, String walletStatePath) {
     walletController = new WalletController();
     blockchain = new Blockchain(difficulty);
-//    startSaveStateTask();
+    if(blockchainStatePath != null && walletStatePath != null) {
+      try {
+        this.loadState(blockchainStatePath, walletStatePath);
+      } catch (InternalServerException e) {
+        System.out.print(e);
+      }
+    }
+    startSaveStateTask();
   }
 
   void mineBlockchain() {
@@ -28,7 +35,7 @@ class Controller {
     walletController.createNewWallet(name, password);
   }
 
-  void sendCoin(String password, String fromName, Double amount, String toName) throws InternalServerException, ForbiddenServerException, InsufficientFundsException {
+  void sendCoin(String password, String fromName, Double amount, String toName) throws InternalServerException, ForbiddenServerException, InsufficientFundsException, NotFoundException {
     Wallet fromWallet = walletController.getWallet(fromName);
     Wallet toWallet = walletController.getWallet(toName);
 
@@ -40,14 +47,14 @@ class Controller {
     }
   }
 
-  double getWalletBalance(String name) {
+  double getWalletBalance(String name) throws NotFoundException {
     Wallet wallet = walletController.getWallet(name);
     return wallet.getWalletBalance(this.blockchain);
   }
 
   void shutdown() throws InternalServerException {
     blockchain.stopMining();
-//    saveState();
+    saveState();
   }
 
   void saveState() throws InternalServerException {
@@ -63,7 +70,6 @@ class Controller {
       walletOutputStream.writeObject(this.walletController);
       walletOutputStream.close();
       walletFile.close();
-
     } catch (IOException e) {
       System.out.print(e);
       throw new InternalServerException("unable to save state");
@@ -81,9 +87,12 @@ class Controller {
       FileInputStream walletFile = new FileInputStream(new File(walletControllerStatePath));
       ObjectInputStream walletInputStream = new ObjectInputStream(walletFile);
       this.walletController = (WalletController) walletInputStream.readObject();
+
       walletInputStream.close();
       walletFile.close();
+
     } catch (IOException | ClassNotFoundException e) {
+      System.out.println(e);
       throw new InternalServerException("unable to load state");
     }
   }
@@ -96,11 +105,11 @@ class Controller {
         try {
           saveState();
         } catch (InternalServerException e) {
-          System.out.print("unable to save state");
+          System.out.println("unable to save state");
         }
       }
     };
     // schedule to repeat every 10 minutes
-    timer.schedule(task,0,600000);
+    timer.schedule(task,0,1000);
   }
 }

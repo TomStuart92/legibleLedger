@@ -61,7 +61,8 @@ public class Wallet implements Serializable {
       for (Transaction transaction : transactions) {
         if (transaction.getFrom() == walletAddress) {
           currentBalance -= transaction.getAmount();
-        } else if (transaction.getTo() == walletAddress) {
+        }
+        if (transaction.getTo() == walletAddress) {
           currentBalance += transaction.getAmount();
         }
       }

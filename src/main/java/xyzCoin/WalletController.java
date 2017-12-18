@@ -23,8 +23,12 @@ class WalletController implements Serializable {
     return newWallet;
   }
 
-  Wallet getWallet(String name) {
-    return wallets.get(name);
+  Wallet getWallet(String name) throws NotFoundException {
+    Wallet wallet = wallets.get(name);
+    if(wallet == null) {
+      throw new NotFoundException("Wallet Does Not Exist");
+    }
+    return wallet;
   }
 
   @Override

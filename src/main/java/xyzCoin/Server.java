@@ -8,7 +8,6 @@ import spark.Request;
 import spark.Response;
 import spark.Spark;
 
-import static spark.Spark.awaitInitialization;
 import static spark.Spark.get;
 import static spark.Spark.post;
 
@@ -19,14 +18,12 @@ import static spark.Spark.post;
 public class Server {
   private Controller controller;
 
-  public Server(int difficulty) {
-    this.controller = new Controller(difficulty);
-    controller.mineBlockchain();
-
+  public Server(int difficulty, String blockchainStatePath, String walletStatePath) {
+    this.controller = new Controller(difficulty, blockchainStatePath, walletStatePath);
     post("/wallets", this::createNewWallet);
     get("/wallets/:name", this::getWalletBalance);
     post("/transactions", this::createNewTransaction);
-    awaitInitialization();
+    this.controller.mineBlockchain();
   }
 
   public void stop() throws InternalServerException {
@@ -49,10 +46,15 @@ public class Server {
     }
   }
 
-  private String getWalletBalance(Request req, Response res) {
-    String name = req.params(":name");
-    Double balance = controller.getWalletBalance(name);
-    return "{\"value\": \"" + balance + "\"}";
+  private String getWalletBalance(Request req, Response res) throws NotFoundException {
+    try {
+      String name = req.params(":name");
+      Double balance = controller.getWalletBalance(name);
+      return "{\"value\": \"" + balance + "\"}";
+    }  catch (NotFoundException e) {
+      res.status(e.getStatusCode());
+      return createResponseMessage("error", e.getMessage());
+    }
   }
 
   private String createNewTransaction(Request req, Response res) {
@@ -61,13 +63,12 @@ public class Server {
       String from = (String) body.get("from");
       String password = (String) body.get("password");
       String to = (String) body.get("to");
-      System.out.println(to);
-      Double amount = (Double) body.get("amount");
+      Double amount = Double.parseDouble((String) body.get("amount"));
 
-      if (from == null || password == null || to == null || amount == null) throw new InvalidRequestException("Field Null");
+      if (from == null || password == null || to == null) throw new InvalidRequestException("Field Null");
       controller.sendCoin(password, from, amount, to);
       return createResponseMessage("message", "success");
-    }  catch (InvalidRequestException | InternalServerException | InsufficientFundsException | ForbiddenServerException e) {
+    }  catch (InvalidRequestException | InternalServerException | InsufficientFundsException | ForbiddenServerException | NotFoundException e) {
       res.status(e.getStatusCode());
       return createResponseMessage("error", e.getMessage());
     }
@@ -89,11 +90,21 @@ public class Server {
 
   public static void main(String[] args) {
     int difficulty;
-    if(args.length > 1) {
+    String blockchainStatePath;
+    String walletStatePath;
+    if(args.length == 3) {
       difficulty = Integer.parseInt(args[0]);
+      blockchainStatePath = args[1];
+      walletStatePath = args[2];
+    } else if (args.length == 1) {
+      difficulty = Integer.parseInt(args[0]);
+      blockchainStatePath = null;
+      walletStatePath = null;
     } else {
       difficulty = 4;
+      blockchainStatePath = "blockchainState.txt";
+      walletStatePath = "walletControllerState.txt";
     }
-    new Server(difficulty);
+    new Server(difficulty, blockchainStatePath, walletStatePath);
   }
 }
