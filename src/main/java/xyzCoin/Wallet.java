@@ -64,12 +64,11 @@ public class Wallet implements Serializable {
       currentBalance += 1;
       Block currentBlock = blockIterator.next();
       ArrayList<Transaction> transactions = currentBlock.getData();
-
       for (Transaction transaction : transactions) {
-        if (transaction.getFrom() == walletAddress) {
+        if (transaction.getFrom().equals(walletAddress)) {
           currentBalance -= transaction.getAmount();
         }
-        if (transaction.getTo() == walletAddress) {
+        if (transaction.getTo().equals(walletAddress)) {
           currentBalance += transaction.getAmount();
         }
       }

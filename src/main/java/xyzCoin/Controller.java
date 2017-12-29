@@ -87,7 +87,6 @@ class Controller {
       FileInputStream walletFile = new FileInputStream(new File(walletControllerStatePath));
       ObjectInputStream walletInputStream = new ObjectInputStream(walletFile);
       this.walletController = (WalletController) walletInputStream.readObject();
-      System.out.println(this.walletController);
       walletInputStream.close();
       walletFile.close();
 
@@ -109,7 +108,7 @@ class Controller {
         }
       }
     };
-    // schedule to repeat every 1 second
-    timer.schedule(task,1000,1000);
+    // schedule to repeat every 1 minute
+    timer.schedule(task,60000,60000);
   }
 }

@@ -36,16 +36,20 @@ class Blockchain implements Serializable {
   }
 
   private void writeObject(final ObjectOutputStream out) throws IOException {
+    CopyOnWriteArrayList<Block> blockchainCopy = new CopyOnWriteArrayList<>(this.blockchain);
+    CopyOnWriteArrayList<Transaction> stagedTransactionsCopy = new CopyOnWriteArrayList<>(this.stagedTransactions);
     out.writeUTF(Integer.toString(this.difficulty));
-    out.writeObject(this.stagedTransactions);
-    out.writeObject(this.blockchain);
+    out.writeObject(blockchainCopy);
+    out.writeObject(stagedTransactionsCopy);
     out.writeUTF(this.lastBlockHash);
   }
 
   private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException {
     this.difficulty = Integer.parseInt(in.readUTF()) ;
-    this.blockchain = (ArrayList<Block>)  in.readObject();
-    this.stagedTransactions = (ArrayList<Transaction>)  in.readObject();
+    CopyOnWriteArrayList<Block> blockchainCopy = (CopyOnWriteArrayList<Block>) in.readObject();
+    this.blockchain = new ArrayList<>(blockchainCopy);
+    CopyOnWriteArrayList<Transaction> stagedTransactionsCopy = (CopyOnWriteArrayList<Transaction>) in.readObject();
+    this.stagedTransactions = new ArrayList<>(stagedTransactionsCopy);
     this.lastBlockHash = in.readUTF();
     initializeThreadPool();
   }
