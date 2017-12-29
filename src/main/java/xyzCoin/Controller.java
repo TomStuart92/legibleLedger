@@ -27,6 +27,10 @@ class Controller {
     startSaveStateTask();
   }
 
+  int blockchainSize() {
+    return this.blockchain.size();
+  }
+
   void mineBlockchain() {
     blockchain.mine();
   }
@@ -35,16 +39,12 @@ class Controller {
     walletController.createNewWallet(name, password);
   }
 
-  void sendCoin(String password, String fromName, Double amount, String toName) throws InternalServerException, ForbiddenServerException, InsufficientFundsException, NotFoundException {
+  void sendCoin(String password, String fromName, Double amount, String toName) throws InvalidRequestException, InternalServerException, ForbiddenServerException, InsufficientFundsException, NotFoundException {
     Wallet fromWallet = walletController.getWallet(fromName);
     Wallet toWallet = walletController.getWallet(toName);
 
     Transaction transaction = fromWallet.createTransaction(password, this.blockchain, toWallet.getWalletAddress(), amount);
-    try {
-      blockchain.stageTransaction(transaction);
-    } catch (InvalidRequestException e) {
-      throw new InternalServerException("unable to send coin");
-    }
+    blockchain.stageTransaction(transaction);
   }
 
   double getWalletBalance(String name) throws NotFoundException {
@@ -59,13 +59,13 @@ class Controller {
 
   void saveState() throws InternalServerException {
     try {
-      FileOutputStream blockchainFile = new FileOutputStream(new File("blockchainState.txt"));
+      FileOutputStream blockchainFile = new FileOutputStream(new File("blockchainState.ser"));
       ObjectOutputStream blockchainOutputStream = new ObjectOutputStream(blockchainFile);
       blockchainOutputStream.writeObject(this.blockchain);
       blockchainOutputStream.close();
       blockchainFile.close();
 
-      FileOutputStream walletFile = new FileOutputStream(new File("walletControllerState.txt"));
+      FileOutputStream walletFile = new FileOutputStream(new File("walletControllerState.ser"));
       ObjectOutputStream walletOutputStream = new ObjectOutputStream(walletFile);
       walletOutputStream.writeObject(this.walletController);
       walletOutputStream.close();
@@ -87,7 +87,7 @@ class Controller {
       FileInputStream walletFile = new FileInputStream(new File(walletControllerStatePath));
       ObjectInputStream walletInputStream = new ObjectInputStream(walletFile);
       this.walletController = (WalletController) walletInputStream.readObject();
-
+      System.out.println(this.walletController);
       walletInputStream.close();
       walletFile.close();
 
@@ -109,7 +109,7 @@ class Controller {
         }
       }
     };
-    // schedule to repeat every 10 minutes
-    timer.schedule(task,0,1000);
+    // schedule to repeat every 1 second
+    timer.schedule(task,1000,1000);
   }
 }

@@ -7,8 +7,8 @@ This is a basic implementation of a blockchain for internal use in the Jigsaw.xy
 ### Config/Difficulty
 - Increase/Decrease Difficulty to keep blocks ~1 hour in duration.
 
-### Save/Load
-- Fix Save/Load functionality
+### Logging
+- LOG LEVELS
 
 ### Tests
 - Finalize Unit Tests

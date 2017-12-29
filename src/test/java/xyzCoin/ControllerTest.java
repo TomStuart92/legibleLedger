@@ -2,6 +2,11 @@ package xyzCoin;
 
 import org.junit.Test;
 
+import java.util.concurrent.TimeUnit;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
+
 /**
  * Created by Tom on 18/12/2017.
  */
@@ -17,11 +22,15 @@ public class ControllerTest {
   @Test
   public void loadStateShouldLoadState() throws Exception {
     Controller testSave = new Controller(0, null, null);
-    testSave.createNewWallet("test", "password");
-    testSave.saveState();
-    Controller testLoad = new Controller(0, null, null);
-    testLoad.loadState("blockchainState1.txt", "walletControllerState1.txt");
+    testSave.createNewWallet("send", "password");
+    testSave.createNewWallet("receive", "password");
+    testSave.mineBlockchain();
+    testSave.sendCoin("password", "send", 1.0, "receive");
     testSave.shutdown();
-    testLoad.shutdown();
+
+    Controller testLoad = new Controller(0, null, null);
+    testLoad.loadState("blockchainState.ser", "walletControllerState.ser");
+    assertThat(testLoad.getWalletBalance("receive"), greaterThan(0.0));
+    assertThat(testLoad.blockchainSize(), greaterThan(0));
   }
 }

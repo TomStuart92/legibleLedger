@@ -1,6 +1,11 @@
 package xyzCoin;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.HashMap;
 
 /**
@@ -31,8 +36,11 @@ class WalletController implements Serializable {
     return wallet;
   }
 
-  @Override
-  public String toString() {
-    return "wallets:" + wallets;
+  private void writeObject(final ObjectOutputStream out) throws IOException {
+    out.writeObject(this.wallets);
+  }
+
+  private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException {
+    this.wallets = (HashMap) in.readObject();
   }
 }

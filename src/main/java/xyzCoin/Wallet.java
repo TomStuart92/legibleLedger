@@ -2,10 +2,17 @@ package xyzCoin;
 
 import org.mindrot.jbcrypt.BCrypt;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.security.*;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by Tom on 11/10/2017.
@@ -48,7 +55,7 @@ public class Wallet implements Serializable {
   }
 
   double getWalletBalance(Blockchain blockchain) {
-    ArrayList<Block> blocks = blockchain.getBlocks();
+    CopyOnWriteArrayList<Block> blocks = new CopyOnWriteArrayList<>(blockchain.getBlocks());
     Iterator<Block> blockIterator = blocks.iterator();
     Double currentBalance = 0.0;
     PublicKey walletAddress = this.getWalletAddress();
@@ -70,9 +77,31 @@ public class Wallet implements Serializable {
     return currentBalance;
   }
 
-  @Override
-  public String toString() {
-    return "hashedPassword:" + hashedPassword + "\npublicKey: " + publicKey + "\nprivateKey: " + privateKey;
+  private void writeObject(final ObjectOutputStream out) throws IOException {
+    out.writeUTF(this.hashedPassword);
+
+    int publicKeyLength = this.publicKey.getEncoded().length;
+    out.writeInt(publicKeyLength);
+    out.write(this.publicKey.getEncoded());
+
+    int privateKeyLength = this.privateKey.getEncoded().length;
+    out.writeInt(privateKeyLength);
+    out.write(this.privateKey.getEncoded());
+  }
+
+  private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException, NoSuchAlgorithmException, InvalidKeySpecException {
+    this.hashedPassword = in.readUTF();
+
+    KeyFactory kf = KeyFactory.getInstance("RSA");
+    int publicKeyLength = in.readInt();
+    byte[] publicKeyBytes = new byte[publicKeyLength];
+    in.read(publicKeyBytes, 0, publicKeyLength);
+    this.publicKey = kf.generatePublic(new X509EncodedKeySpec(publicKeyBytes));
+
+    int privateKeyLength = in.readInt();
+    byte[] privateKeyBytes = new byte[privateKeyLength];
+    in.read(privateKeyBytes, 0, privateKeyLength);
+    this.privateKey = kf.generatePrivate(new PKCS8EncodedKeySpec(privateKeyBytes));
   }
 
   private Boolean checkPassword(String candidate) {

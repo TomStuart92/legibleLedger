@@ -1,11 +1,14 @@
 package xyzCoin;
 
+import org.omg.CORBA.TRANSACTION_MODE;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.security.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.concurrent.*;
 
@@ -34,15 +37,15 @@ class Blockchain implements Serializable {
 
   private void writeObject(final ObjectOutputStream out) throws IOException {
     out.writeUTF(Integer.toString(this.difficulty));
-    out.writeObject(this.blockchain);
     out.writeObject(this.stagedTransactions);
+    out.writeObject(this.blockchain);
     out.writeUTF(this.lastBlockHash);
   }
 
   private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException {
     this.difficulty = Integer.parseInt(in.readUTF()) ;
-    this.blockchain = (ArrayList<Block>) in.readObject();
-    this.stagedTransactions = (ArrayList<Transaction>) in.readObject();
+    this.blockchain = (ArrayList<Block>)  in.readObject();
+    this.stagedTransactions = (ArrayList<Transaction>)  in.readObject();
     this.lastBlockHash = in.readUTF();
     initializeThreadPool();
   }

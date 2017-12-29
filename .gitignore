@@ -3,6 +3,6 @@ target
 .DS_STORE
 *.iml
 
-blockchainState.txt
-walletControllerState.txt
+blockchainState.ser
+walletControllerState.ser
 dependency-reduced-pom.xml

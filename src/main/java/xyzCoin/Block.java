@@ -60,8 +60,6 @@ public class Block implements Callable<Block>, Serializable {
       if (isValidHash(encoded)) minedFlag = true;
     }
     thisBlockHash = encoded;
-
-    System.out.println("Mined Block: " + this.toString());
   }
 
   private String getBaseValue() {
