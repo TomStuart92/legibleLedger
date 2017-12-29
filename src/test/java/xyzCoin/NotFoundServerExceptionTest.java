@@ -10,17 +10,17 @@ import static junit.framework.TestCase.assertEquals;
  * Tests AlreadyExistsServerException
  */
 
-public class NotFoundExceptionTest {
+public class NotFoundServerExceptionTest {
   @Test
   public void getStatusCodeShouldReturn409() {
-    NotFoundException tester = new NotFoundException("Test Message");
+    NotFoundServerException tester = new NotFoundServerException("Test Message");
     assertEquals(404, tester.getStatusCode());
   }
 
   @Test
   public void getMessageShouldReturnMessage() {
     String message = "Test Message";
-    NotFoundException tester = new NotFoundException(message);
+    NotFoundServerException tester = new NotFoundServerException(message);
     assertEquals(message, tester.getMessage());
   }
 }

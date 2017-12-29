@@ -41,9 +41,9 @@ public class Wallet implements Serializable {
     return this.publicKey;
   }
 
-  Transaction createTransaction(String password, Blockchain blockchain, PublicKey walletAddress, double amount) throws ForbiddenServerException, InsufficientFundsException, InternalServerException {
+  Transaction createTransaction(String password, Blockchain blockchain, PublicKey walletAddress, double amount) throws ForbiddenServerException, InsufficientFundsServerException, InternalServerException {
     if (!checkPassword(password)) throw new ForbiddenServerException("Invalid Password");
-    if (this.getWalletBalance(blockchain) < amount) throw new InsufficientFundsException("Insufficient Funds");
+    if (this.getWalletBalance(blockchain) < amount) throw new InsufficientFundsServerException("Insufficient Funds");
     Transaction transaction = new Transaction(this.getWalletAddress(), amount, walletAddress);
     PrivateKey walletPrivateKey = this.privateKey;
     try {

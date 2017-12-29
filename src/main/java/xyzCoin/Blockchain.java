@@ -1,14 +1,11 @@
 package xyzCoin;
 
-import org.omg.CORBA.TRANSACTION_MODE;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.security.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.concurrent.*;
 
@@ -75,8 +72,8 @@ class Blockchain implements Serializable {
     }
   }
 
-  void stageTransaction(Transaction transaction) throws InvalidRequestException {
-    if (!verifyValidTransaction(transaction)) throw new InvalidRequestException("Invalid Request");
+  void stageTransaction(Transaction transaction) throws InvalidRequestServerException {
+    if (!verifyValidTransaction(transaction)) throw new InvalidRequestServerException("Invalid Request");
     stagedTransactions.add(transaction);
   }
 

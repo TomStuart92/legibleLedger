@@ -40,7 +40,7 @@ public class WalletTest {
     tester.createTransaction("Incorrect Password", blockchain, publicKey, 0.00);
   }
 
-  @Test(expected = InsufficientFundsException.class)
+  @Test(expected = InsufficientFundsServerException.class)
   public void createTransactionShouldThrowIfNoFunds() throws Exception {
     String password = "Password";
     Blockchain blockchain = mock(Blockchain.class);

@@ -3,16 +3,16 @@ package xyzCoin;
 /**
  * Created by Tom on 27/10/2017.
  *
- * Provides Abstraction for 403 HTTP ServerException
+ * Provides Abstraction for 409 HTTP ServerException
  */
 
-public class NotFoundException extends Exception implements ServerException {
+public class InsufficientFundsServerException extends Exception implements ServerException {
   private String message;
   private int statusCode;
 
-  NotFoundException(String errorMessage) {
+  InsufficientFundsServerException(String errorMessage) {
     this.message = errorMessage;
-    this.statusCode = 404;
+    this.statusCode = 402;
   }
 
   public int getStatusCode() {

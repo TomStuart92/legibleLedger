@@ -39,7 +39,7 @@ class Controller {
     walletController.createNewWallet(name, password);
   }
 
-  void sendCoin(String password, String fromName, Double amount, String toName) throws InvalidRequestException, InternalServerException, ForbiddenServerException, InsufficientFundsException, NotFoundException {
+  void sendCoin(String password, String fromName, Double amount, String toName) throws InvalidRequestServerException, InternalServerException, ForbiddenServerException, InsufficientFundsServerException, NotFoundServerException {
     Wallet fromWallet = walletController.getWallet(fromName);
     Wallet toWallet = walletController.getWallet(toName);
 
@@ -47,7 +47,7 @@ class Controller {
     blockchain.stageTransaction(transaction);
   }
 
-  double getWalletBalance(String name) throws NotFoundException {
+  double getWalletBalance(String name) throws NotFoundServerException {
     Wallet wallet = walletController.getWallet(name);
     return wallet.getWalletBalance(this.blockchain);
   }

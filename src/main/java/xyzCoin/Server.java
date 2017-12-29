@@ -36,22 +36,22 @@ public class Server {
       JSONObject body = parseRequest(req.body());
       String name = (String) body.get("name");
       String password = (String) body.get("password");
-      if (name == null || password == null) throw new InvalidRequestException("Name or Password Null");
+      if (name == null || password == null) throw new InvalidRequestServerException("Name or Password Null");
       controller.createNewWallet(name, password);
       res.status(201);
       return createResponseMessage("message", "success");
-    } catch (InvalidRequestException | AlreadyExistsServerException | InternalServerException e) {
+    } catch (InvalidRequestServerException | AlreadyExistsServerException | InternalServerException e) {
       res.status(e.getStatusCode());
       return createResponseMessage("error", e.getMessage());
     }
   }
 
-  private String getWalletBalance(Request req, Response res) throws NotFoundException {
+  private String getWalletBalance(Request req, Response res) throws NotFoundServerException {
     try {
       String name = req.params(":name");
       Double balance = controller.getWalletBalance(name);
       return "{\"value\": \"" + balance + "\"}";
-    }  catch (NotFoundException e) {
+    }  catch (NotFoundServerException e) {
       res.status(e.getStatusCode());
       return createResponseMessage("error", e.getMessage());
     }
@@ -65,10 +65,10 @@ public class Server {
       String to = (String) body.get("to");
       Double amount = Double.parseDouble((String) body.get("amount"));
 
-      if (from == null || password == null || to == null) throw new InvalidRequestException("Field Null");
+      if (from == null || password == null || to == null) throw new InvalidRequestServerException("Field Null");
       controller.sendCoin(password, from, amount, to);
       return createResponseMessage("message", "success");
-    }  catch (InvalidRequestException | InternalServerException | InsufficientFundsException | ForbiddenServerException | NotFoundException e) {
+    }  catch (InvalidRequestServerException | InternalServerException | InsufficientFundsServerException | ForbiddenServerException | NotFoundServerException e) {
       res.status(e.getStatusCode());
       return createResponseMessage("error", e.getMessage());
     }
@@ -78,13 +78,13 @@ public class Server {
     return "{\""+key+"\":\""+message+"\"}";
   }
 
-  private static JSONObject parseRequest(String requestBody) throws InvalidRequestException {
+  private static JSONObject parseRequest(String requestBody) throws InvalidRequestServerException {
     try {
       JSONParser parser = new JSONParser();
       Object obj = parser.parse(requestBody);
       return (JSONObject)obj;
     } catch (ParseException e) {
-      throw new InvalidRequestException("Unable to parse body");
+      throw new InvalidRequestServerException("Unable to parse body");
     }
   }
 

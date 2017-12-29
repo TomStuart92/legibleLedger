@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.util.HashMap;
 
 /**
@@ -28,10 +26,10 @@ class WalletController implements Serializable {
     return newWallet;
   }
 
-  Wallet getWallet(String name) throws NotFoundException {
+  Wallet getWallet(String name) throws NotFoundServerException {
     Wallet wallet = wallets.get(name);
     if(wallet == null) {
-      throw new NotFoundException("Wallet Does Not Exist");
+      throw new NotFoundServerException("Wallet Does Not Exist");
     }
     return wallet;
   }
